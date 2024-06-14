@@ -4,61 +4,56 @@
 
 
 
-struct Oggetto 
+struct Object 
 {
- int IDOggetto;
- char *descrizione;
- Rectangle forma;
+ int idObject;
+ char *desc;
+ Rectangle shape;
 };
 
 
 
-void Muovi(Rectangle *personaggio,float delta)
+void Muovi(Rectangle *player,float delta)
 {
 	if(IsKeyDown(KEY_W))
-		personaggio->y -= 100 * delta;
+		player->y -= 100 * delta;
 	else if (IsKeyDown(KEY_S))
-		personaggio->y += 100 * delta;
+		player->y += 100 * delta;
 
 	if(IsKeyDown(KEY_A))
-		personaggio->x -= 100 * delta;
+		player->x -= 100 * delta;
 	else if(IsKeyDown(KEY_D))
-		personaggio->x += 100 * delta;	
-}
-
-void SpawnaOggetto(int larghezzaF, int altezzaF, _Bool *oggettoSpawnato, struct Oggetto *oggetto)
-{
-	oggetto->IDOggetto = 
+		player->x += 100 * delta;	
 }
 
 
 
 int main()
 {
- int larghezzaF = 700, altezzaF = 500;
+ int widthW = 700, heightW = 500;
  float delta;
- float* deltaPtr = &delta;
- _Bool menuAperto = false, oggettoSpawnato = false;
- struct Oggetto oggetto;
- Rectangle personaggio = {0, 0, 50, 50};
+
+ _Bool MenuOpen = false, spawnedObject = false;
+ struct Object object;
+ Rectangle player = {0, 0, 50, 50};
  
- InitWindow(larghezzaF, altezzaF, "prova Menù");
+ InitWindow(widthW, heightW, "test menu");
  while(!WindowShouldClose())
  {
 	delta = GetFrameTime();
 	ClearBackground(BLACK);
  	BeginDrawing();
-		Muovi(&personaggio, delta);
+		Muovi(&player, delta);
 
 		if(IsKeyPressed(KEY_E))
 		{
-			if(!menuAperto)
+			if(!MenuOpen)
 			{
 				
 			}
 		}
 
-		DrawRectangle(personaggio.x, personaggio.y, personaggio.width, personaggio.height, RED);
+		DrawRectangle(player.x, player.y, player.width, player.height, RED);
 	EndDrawing();
  }
 
