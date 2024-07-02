@@ -1,15 +1,16 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <raylib.h>
 #include <time.h>
 
 
-struct Object 
+typedef struct  
 {
  int idObject;
  char *desc;
  Rectangle shape;
  Color color;
-};
+}Object;
 
 
 void Move(Rectangle *player,float delta)
@@ -25,48 +26,52 @@ void Move(Rectangle *player,float delta)
 		player->x += 100 * delta;	
 }
 
-void initObject(struct Object* object[])
+void initObject(Object *object)
 {
-	object[0]->idObject = 1;
-	object[0]->desc = "apple";
-	object[2]->shape.height=10;
-	object[2]->shape.width=10;
-	object[0]->color= RED;
+	object[0].idObject = 1;
+	object[0].desc = "apple";
+	object[0].shape.height=10;
+	object[0].shape.width=10;
+	object[0].color= RED;
 
-	object[1]->idObject = 2;
-	object[1]->desc ="banana";
-	object[1]->shape.height=10;
-	object[1]->shape.width=20;
-	object[1]->color = YELLOW;
+	object[1].idObject = 2;
+	object[1].desc ="banana";
+	object[1].shape.height=10;
+	object[1].shape.width=20;
+	object[1].color = YELLOW;
 
-	object[2]->idObject = 3;
-	object[2]->desc ="kiwi";
-	object[2]->shape.height=5;
-	object[2]->shape.width= 5;
-	object[2]->color=BROWN;
+	object[2].idObject = 3;
+	object[2].desc ="kiwi";
+	object[2].shape.height=5;
+	object[2].shape.width= 5;
+	object[2].color=BROWN;
 
-	object[3]->idObject = 4;
-	object[3]->desc ="ficus";
-	object[3]->shape.height= 2;
-	object[3]->shape.width= 2;
-	object[3]->color= GREEN;
+	object[3].idObject = 4;
+	object[3].desc ="ficus";
+	object[3].shape.height= 2;
+	object[3].shape.width= 2;
+	object[3].color= GREEN;
 
-	object[4]->idObject = 5;
-	object[4]->desc ="merinque";
-	object[2]->shape.height=5;
-	object[2]->shape.width=5;
-	object[4]->color= RAYWHITE;
+	object[4].idObject = 5;
+	object[4].desc ="merinque";
+	object[4].shape.height=5;
+	object[4].shape.width=5;
+	object[4].color= RAYWHITE;
 }
 
-void spawnObject(_Bool* spawnedObject, struct Object object, struct Object *objectSelected, int widthW, int heightW)
+void spawnObject(_Bool* spawnedObject, Object *object, Object *objectSelected, int widthW, int heightW)
 {
 	if(!spawnedObject)
 	{
-		spawnedObject = true;
-		objectSelected = object[rand()%(4-0+1)+1];
+		*spawnedObject = true;
+		*objectSelected = object[rand()%(4-0+1)+1];
+		objectSelected->shape.x = rand()%(widthW-0+1)+1; 
+		objectSelected->shape.y = rand()%(heightW-0+1)+1; 
+
+		printf("spawned %s at %.2f X and %.2f Y",objectSelected->desc, objectSelected->shape.x, objectSelected->shape.y);
 	}
 
-	DrawText(objectSelected->desc, int sX, int posY, int fontSize, Color color)
+	DrawRectangle(objectSelected->shape.x, objectSelected->shape.y, objectSelected->shape.width, objectSelected->shape.height, objectSelected->color);
 }
 
 int main()
@@ -76,11 +81,10 @@ int main()
  float delta;
 
  _Bool MenuOpen = false, spawnedObject = false;
- struct Object object[5];
- struct Object selectedObject;
+ Object object[5], selectedObject;
  Rectangle player = {0, 0, 50, 50};
  
-initObject(&object);
+ initObject(object);
 
  InitWindow(widthW, heightW, "test Inventory");
  while(!WindowShouldClose())
@@ -89,7 +93,7 @@ initObject(&object);
 	ClearBackground(BLACK);
  	BeginDrawing();
 		Move(&player, delta);
-		spawnObject(&spawnedObject, struct object, struct &selectedObject,widthW,heightW);
+		spawnObject(&spawnedObject, object,&selectedObject,widthW,heightW);
 		if(IsKeyPressed(KEY_E))
 		{
 			if(!MenuOpen)
