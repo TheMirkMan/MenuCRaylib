@@ -84,7 +84,7 @@ void spawnObject(bool *spawnedObject, Object object[], Object *objectSelected, i
 
 	if(*spawnedObject == false)
 	{
-		printf("$$$$$$$$$$$$$$$spawning Objects....$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+
 		*spawnedObject = true;
 		*objectSelected = object[rand()%4+1];
 		objectSelected->shape.x = rand()%widthW+1; 
@@ -100,12 +100,17 @@ int main()
 {
  srand(time(NULL));
  int widthW = 700, heightW = 500;
+ int inventory[3][2] = {0,0,0,0,0,0};
  float delta;
 
- bool  MenuOpen = false, spawnedObject = false;
+ bool  MenuOpen = false, spawnedObject = false, objTaken = false, full = false;
  Object object[5], selectedObject;
- Player player = {0, 0, 50, 50};
- player.collisionShape = player.shape;
+ Player player = {{0, 0, 50, 50}, player.shape};
+
+
+ Rectangle inventoryUI = {widthW-(widthW/8), 0, 88, heightW};
+ Rectangle inventorySpace = {widthW-(widthW/9),9,70,70};
+
  initObject(object);
 
  InitWindow(widthW, heightW, "test Inventory");
@@ -114,14 +119,67 @@ int main()
 	delta = GetFrameTime();
 	ClearBackground(BLACK);
  	BeginDrawing();
-		Move(&player, delta);
 		spawnObject(&spawnedObject, object,&selectedObject,widthW,heightW);
+		if(IsKeyPressed(KEY_ENTER))
+		{
+			if(selectedObject.shape.x >= player.collisionShape.x && selectedObject.shape.x <= player.collisionShape.x + player.collisionShape.width)
+			{
+				if(selectedObject.shape.y >= player.collisionShape.y && selectedObject.shape.y <= player.collisionShape.y + player.collisionShape.height)
+				{
+					for(int i = 0; i<=2; i++)
+					{
+						if(inventory[i][0] == 0)
+						{
+							inventory[i][0] = selectedObject.idObject;
+							inventory[i][1] +=1;
+							objTaken = true;
+							break;
+						} 
+						else if (inventory[i][0] == selectedObject.idObject && inventory[i][1] < 5)
+						{
+							inventory[i][1] += 1; 
+							objTaken = true;
+						}
+						else {
+						 full = true;
+						}
+					}
+					if(objTaken)
+					{
+						spawnedObject = false;
+						objTaken = false;
+					}
+					else if (full)
+					{
+						printf ("Inventory full :( \n");
+					}
+				}
+			}
+
+		}
+
+
 		if(IsKeyPressed(KEY_E))
 		{
 			if(!MenuOpen)
 			{
-				
+				MenuOpen = true;
 			}
+			else {
+				MenuOpen = false;
+			}
+		}
+		
+		if(MenuOpen)
+		{
+			DrawRectangle(inventoryUI.x, inventoryUI.y, inventoryUI.width, inventoryUI.height, WHITE);
+			DrawRectangle(inventorySpace.x, inventorySpace.y, inventorySpace.width, inventorySpace.height, GRAY);
+			DrawRectangle(inventorySpace.x, ((inventorySpace.y * 2 + inventorySpace.height)) , inventorySpace.width, inventorySpace.height, GRAY);
+			DrawRectangle(inventorySpace.x, ((inventorySpace.height * 2 + 30))  , inventorySpace.width, inventorySpace.height, GRAY);
+
+		}
+		else {
+			Move(&player, delta);
 		}
 
 		DrawRectangle(player.shape.x, player.shape.y, player.shape.width, player.shape.height, RED);
