@@ -188,10 +188,8 @@ int main()
 			{
 				if(inventory[i][0] != 0)
 				{                      //porcata																				//seconda porcata																								//terza porcata							//quarta porcata							//quinta porcata					
-					DrawRectangle(inventorySpace.Center.x-object[inventory[i][0]-1].shape.width/2, inventorySpace.Center.y - object[inventory[i][0]-1].shape.height/2, object[inventory[i][0]-1].shape.width, object[inventory[i][0]-1].shape.height, object[inventory[i][0]-1].color);
+					DrawRectangle(inventorySpace.Center.x-object[inventory[i][0]-1].shape.width/2, (inventorySpace.Center.y - object[inventory[i][0]-1].shape.height/2) + (inventorySpace.shape.height * (i*1.3)-(10*(i-1))), object[inventory[i][0]-1].shape.width, object[inventory[i][0]-1].shape.height, object[inventory[i][0]-1].color);
 					DrawText(TextFormat("%d", inventory[i][1]), inventorySpace.Center.x+object[inventory[i][0]-1].shape.width/2, inventorySpace.Center.y + object[inventory[i][0]-1].shape.height/2, 10, BLACK);
-				
-				
 				}
 			}
 		}
