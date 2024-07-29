@@ -21,7 +21,9 @@ typedef struct
 typedef struct
 {
 	Rectangle shape;
+	Rectangle Border;
 	Vector2 Center;
+	bool selected;
 }InventorySpace;
 
 void Move(Player *player,float delta)
@@ -54,35 +56,51 @@ void Move(Player *player,float delta)
 
 void initObject(Object *object)
 {
-	object[0].idObject = 1;
+	object[0].idObject = 0;
 	object[0].desc = "apple";
 	object[0].shape.height=15;
 	object[0].shape.width=15;
 	object[0].color= RED;
 
-	object[1].idObject = 2;
+	object[1].idObject = 1;
 	object[1].desc ="banana";
 	object[1].shape.height=10;
 	object[1].shape.width=20;
 	object[1].color = YELLOW;
 
-	object[2].idObject = 3;
+	object[2].idObject = 2;
 	object[2].desc ="kiwi";
 	object[2].shape.height=8;
 	object[2].shape.width= 8;
 	object[2].color=BROWN;
 
-	object[3].idObject = 4;
+	object[3].idObject = 3;
 	object[3].desc ="ficus";
 	object[3].shape.height= 6;
 	object[3].shape.width= 6;
 	object[3].color= GREEN;
 
-	object[4].idObject = 5;
+	object[4].idObject = 4;
 	object[4].desc ="merinque";
 	object[4].shape.height=6;
 	object[4].shape.width=6;
 	object[4].color= RAYWHITE;
+}
+
+void initInventorySpaces(InventorySpace *inventoryS, Rectangle inventoryUI)
+{
+	for(int i = 0; i<3; i++)
+	{
+		inventoryS[i].shape.width = 70;
+		inventoryS[i].shape.height = 70;
+		inventoryS[i].shape.x = inventoryUI.x + 10;
+		inventoryS[i].shape.y = (inventoryUI.y + 10) + (inventoryS[i].shape.height * (i*1.3)-(10*(i-1)));
+		inventoryS[i].Border = inventoryS[i].shape;
+		inventoryS[i].selected = false;
+		inventoryS[i].Center.x = inventoryS[i].shape.x + inventoryS[i].shape.width/2;
+		inventoryS[i].Center.y = inventoryS[i].shape.y + inventoryS[i].shape.height/2;
+	}
+	inventoryS[0].selected = true;
 }
 
 void spawnObject(bool *spawnedObject, Object object[], Object *objectSelected, int widthW, int heightW)
@@ -90,7 +108,6 @@ void spawnObject(bool *spawnedObject, Object object[], Object *objectSelected, i
 
 	if(*spawnedObject == false)
 	{
-
 		*spawnedObject = true;
 		*objectSelected = object[rand()%5];
 		objectSelected->shape.x = rand()%widthW+1; 
@@ -107,17 +124,21 @@ int main()
  srand(time(NULL));
  int widthW = 700, heightW = 500;
  int inventory[3][2] = {0,0,0,0,0,0};
+ int selectedInventoryN = 0;
  float delta;
 
  bool  MenuOpen = false, spawnedObject = false, objTaken = false, full = false;
  Object object[5], selectedObject;
  Player player = {{0, 0, 50, 50}, player.shape};
  Rectangle inventoryUI = {widthW-(widthW/8), 0, 88, heightW};
- InventorySpace inventorySpace = {{inventoryUI.x + 10,inventoryUI.y+ 10,70,70}, {inventorySpace.shape.x + inventorySpace.shape.width/2,inventorySpace.shape.y + inventorySpace.shape.height/2}};
+ InventorySpace inventorySpace[3];
+
+
  
  
 
  initObject(object);
+ initInventorySpaces(inventorySpace, inventoryUI);
 
  InitWindow(widthW, heightW, "test Inventory");
  while(!WindowShouldClose())
@@ -180,16 +201,39 @@ int main()
 		if(MenuOpen)
 		{
 			DrawRectangle(inventoryUI.x, inventoryUI.y, inventoryUI.width, inventoryUI.height, WHITE);
-			DrawRectangle(inventorySpace.shape.x, inventorySpace.shape.y, inventorySpace.shape.width, inventorySpace.shape.height, GRAY);
-			DrawRectangle(inventorySpace.shape.x, ((inventorySpace.shape.y * 2 + inventorySpace.shape.height)) , inventorySpace.shape.width, inventorySpace.shape.height, GRAY);
-			DrawRectangle(inventorySpace.shape.x, ((inventorySpace.shape.height * 2 + 30))  , inventorySpace.shape.width, inventorySpace.shape.height, GRAY);
-
+			for (int i = 0; i < sizeof(inventorySpace); i++) 
+			{
+				DrawRectangle(inventorySpace[i].shape.x, inventorySpace[i].shape.y, inventorySpace[i].shape.width, inventorySpace[i].shape.height, GRAY);
+				if(inventorySpace[i].selected == true)
+				 {
+					DrawRectangleLinesEx(inventorySpace[i].shape,5, GREEN);
+				 }
+			}
+			
+			if(IsKeyPressed(KEY_DOWN))
+			{
+				inventorySpace[selectedInventoryN].selected = false;
+				if(selectedInventoryN == 2)
+					selectedInventoryN = 0;
+				else
+				 	selectedInventoryN ++;
+				inventorySpace[selectedInventoryN].selected =true;
+			}
+			if(IsKeyPressed(KEY_UP))
+			{
+				inventorySpace[selectedInventoryN].selected = false;
+				if(selectedInventoryN == 0)
+					selectedInventoryN = 2;
+				else
+				 	selectedInventoryN--;
+				inventorySpace[selectedInventoryN].selected =true;
+			}
 			for (int i = 0; i<=2; i++)
 			{
 				if(inventory[i][0] != 0)
-				{                      //porcata																				//seconda porcata																								//terza porcata							//quarta porcata							//quinta porcata					
-					DrawRectangle(inventorySpace.Center.x-object[inventory[i][0]-1].shape.width/2, (inventorySpace.Center.y - object[inventory[i][0]-1].shape.height/2) + (inventorySpace.shape.height * (i*1.3)-(10*(i-1))), object[inventory[i][0]-1].shape.width, object[inventory[i][0]-1].shape.height, object[inventory[i][0]-1].color);
-					DrawText(TextFormat("%d", inventory[i][1]), inventorySpace.Center.x+object[inventory[i][0]-1].shape.width/2, inventorySpace.Center.y + object[inventory[i][0]-1].shape.height/2, 10, BLACK);
+				{                    
+					DrawRectangle(inventorySpace[i].Center.x-object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y - object[inventory[i][0]].shape.height/2, object[inventory[i][0]].shape.width, object[inventory[i][0]].shape.height, object[inventory[i][0]].color);
+					DrawText(TextFormat("%d", inventory[i][1]), inventorySpace[i].Center.x+object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y + object[inventory[i][0]].shape.height/2, 10, BLACK);
 				}
 			}
 		}
