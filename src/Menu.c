@@ -123,7 +123,7 @@ int main()
 {
  srand(time(NULL));
  int widthW = 700, heightW = 500;
- int inventory[3][2] = {0,0,0,0,0,0};
+ int inventory[3][2] = {-1,-1,-1,-1,-1,-1};
  int selectedInventoryN = 0;
  float delta;
 
@@ -147,44 +147,7 @@ int main()
 	ClearBackground(BLACK);
  	BeginDrawing();
 		spawnObject(&spawnedObject, object,&selectedObject,widthW,heightW);
-		if(IsKeyPressed(KEY_ENTER))
-		{
-			if(selectedObject.shape.x >= player.collisionShape.x && selectedObject.shape.x <= player.collisionShape.x + player.collisionShape.width)
-			{
-				if(selectedObject.shape.y >= player.collisionShape.y && selectedObject.shape.y <= player.collisionShape.y + player.collisionShape.height)
-				{
-					for(int i = 0; i<=2; i++)
-					{
-						if(inventory[i][0] == 0)
-						{
-							inventory[i][0] = selectedObject.idObject;
-							inventory[i][1] +=1;
-							objTaken = true;
-							break;
-						} 
-						else if (inventory[i][0] == selectedObject.idObject && inventory[i][1] < 5)
-						{
-							inventory[i][1] += 1;
-							objTaken = true;
-							break;
-						}
-
-						printf("%s %d\n", object[(inventory[i][0]-1)].desc, inventory[i][1]);
-					}
-					if(objTaken)
-					{
-						spawnedObject = false;
-						objTaken = false;
-					}
-					else
-					{
-						spawnedObject = false;
-						printf ("Inventory full :( \n");
-					}
-				}
-			}
-
-		}
+		
 
 
 		if(IsKeyPressed(KEY_E))
@@ -228,9 +191,17 @@ int main()
 				 	selectedInventoryN--;
 				inventorySpace[selectedInventoryN].selected =true;
 			}
+			if(IsKeyPressed(KEY_I))
+			{
+				if(inventory[selectedInventoryN][1] > 0)
+					inventory[selectedInventoryN][1]--;
+				else
+					inventory[selectedInventoryN][0] = -1;
+
+			}
 			for (int i = 0; i<=2; i++)
 			{
-				if(inventory[i][0] != 0)
+				if(inventory[i][0] != -1)
 				{                    
 					DrawRectangle(inventorySpace[i].Center.x-object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y - object[inventory[i][0]].shape.height/2, object[inventory[i][0]].shape.width, object[inventory[i][0]].shape.height, object[inventory[i][0]].color);
 					DrawText(TextFormat("%d", inventory[i][1]), inventorySpace[i].Center.x+object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y + object[inventory[i][0]].shape.height/2, 10, BLACK);
@@ -239,6 +210,43 @@ int main()
 		}
 		else {
 			Move(&player, delta);
+			if(IsKeyPressed(KEY_ENTER))
+			{
+				if(selectedObject.shape.x >= player.collisionShape.x && selectedObject.shape.x <= player.collisionShape.x + player.collisionShape.width)
+				{
+					if(selectedObject.shape.y >= player.collisionShape.y && selectedObject.shape.y <= player.collisionShape.y + player.collisionShape.height)
+					{
+						for(int i = 0; i<=2; i++)
+						{
+							if(inventory[i][0] == 0)
+							{
+								inventory[i][0] = selectedObject.idObject;
+								inventory[i][1] +=1;
+								objTaken = true;
+								break;
+							} 
+							else if (inventory[i][0] == selectedObject.idObject && inventory[i][1] < 5)
+							{
+								inventory[i][1] += 1;
+								objTaken = true;
+								break;
+							}
+
+							printf("%s %d\n", object[(inventory[i][0]-1)].desc, inventory[i][1]);
+						}
+						if(objTaken)
+						{
+							spawnedObject = false;
+							objTaken = false;
+						}
+						else
+						{
+							spawnedObject = false;
+							printf ("Inventory full :( \n");
+						}
+					}
+				}
+			}
 		}
 
 		DrawRectangle(player.shape.x, player.shape.y, player.shape.width, player.shape.height, RED);
