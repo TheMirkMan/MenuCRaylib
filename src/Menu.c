@@ -3,6 +3,8 @@
 #include <raylib.h>
 #include <time.h>
 #include<stdbool.h>
+#define QUANTITY 1
+#define IDOBJECT 0
 
 typedef struct  
 {
@@ -191,20 +193,20 @@ int main()
 				 	selectedInventoryN--;
 				inventorySpace[selectedInventoryN].selected =true;
 			}
-			if(IsKeyPressed(KEY_I))
+			if(IsKeyPressed(KEY_ENTER))
 			{
-				if(inventory[selectedInventoryN][1] > 0)
-					inventory[selectedInventoryN][1]--;
+				if(inventory[selectedInventoryN][QUANTITY] > 0)
+					inventory[selectedInventoryN][QUANTITY]--;
 				else
-					inventory[selectedInventoryN][0] = -1;
+					inventory[selectedInventoryN][IDOBJECT] = -1;
 
 			}
 			for (int i = 0; i<=2; i++)
 			{
-				if(inventory[i][0] != -1)
+				if(inventory[i][IDOBJECT] != -1)
 				{                    
-					DrawRectangle(inventorySpace[i].Center.x-object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y - object[inventory[i][0]].shape.height/2, object[inventory[i][0]].shape.width, object[inventory[i][0]].shape.height, object[inventory[i][0]].color);
-					DrawText(TextFormat("%d", inventory[i][1]), inventorySpace[i].Center.x+object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y + object[inventory[i][0]].shape.height/2, 10, BLACK);
+					DrawRectangle(inventorySpace[i].Center.x-object[inventory[i][IDOBJECT]].shape.width/2, inventorySpace[i].Center.y - object[inventory[i][IDOBJECT]].shape.height/2, object[inventory[i][IDOBJECT]].shape.width, object[inventory[i][IDOBJECT]].shape.height, object[inventory[i][IDOBJECT]].color);
+					DrawText(TextFormat("%d", inventory[i][QUANTITY]), inventorySpace[i].Center.x+object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y + object[inventory[i][0]].shape.height/2, 10, BLACK);
 				}
 			}
 		}
@@ -218,21 +220,21 @@ int main()
 					{
 						for(int i = 0; i<=2; i++)
 						{
-							if(inventory[i][0] == 0)
+							if(inventory[i][IDOBJECT] == -1)
 							{
-								inventory[i][0] = selectedObject.idObject;
-								inventory[i][1] +=1;
+								inventory[i][IDOBJECT] = selectedObject.idObject;
+								inventory[i][QUANTITY]++;
 								objTaken = true;
 								break;
 							} 
-							else if (inventory[i][0] == selectedObject.idObject && inventory[i][1] < 5)
+							else if (inventory[i][IDOBJECT] == selectedObject.idObject && inventory[i][QUANTITY] < 5)
 							{
-								inventory[i][1] += 1;
+								inventory[i][QUANTITY] += 1;
 								objTaken = true;
 								break;
 							}
 
-							printf("%s %d\n", object[(inventory[i][0]-1)].desc, inventory[i][1]);
+							printf("%s %d\n", object[(inventory[i][IDOBJECT])].desc, inventory[i][QUANTITY]);
 						}
 						if(objTaken)
 						{
