@@ -5,7 +5,9 @@
 #include<stdbool.h>
 #define QUANTITY 1
 #define IDOBJECT 0
-
+#define EMPTY -1
+#define LAST 2
+#define FIRST 0
 typedef struct  
 {
  int idObject;
@@ -125,11 +127,11 @@ int main()
 {
  srand(time(NULL));
  int widthW = 700, heightW = 500;
- int inventory[3][2] = {-1,-1,-1,-1,-1,-1};
- int selectedInventoryN = 0;
+ int inventory[3][2] = {EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY};
+ int selectedInventoryN = 0, whereToStore = EMPTY;
  float delta;
 
- bool  MenuOpen = false, spawnedObject = false, objTaken = false, full = false;
+ bool  MenuOpen = false, spawnedObject = false, objTaken = false;
  Object object[5], selectedObject;
  Player player = {{0, 0, 50, 50}, player.shape};
  Rectangle inventoryUI = {widthW-(widthW/8), 0, 88, heightW};
@@ -178,8 +180,8 @@ int main()
 			if(IsKeyPressed(KEY_DOWN))
 			{
 				inventorySpace[selectedInventoryN].selected = false;
-				if(selectedInventoryN == 2)
-					selectedInventoryN = 0;
+				if(selectedInventoryN == LAST)
+					selectedInventoryN = FIRST;
 				else
 				 	selectedInventoryN ++;
 				inventorySpace[selectedInventoryN].selected =true;
@@ -187,23 +189,23 @@ int main()
 			if(IsKeyPressed(KEY_UP))
 			{
 				inventorySpace[selectedInventoryN].selected = false;
-				if(selectedInventoryN == 0)
-					selectedInventoryN = 2;
+				if(selectedInventoryN == FIRST)
+					selectedInventoryN = LAST;
 				else
 				 	selectedInventoryN--;
 				inventorySpace[selectedInventoryN].selected =true;
 			}
 			if(IsKeyPressed(KEY_ENTER))
 			{
-				if(inventory[selectedInventoryN][QUANTITY] > 0)
+				if(inventory[selectedInventoryN][QUANTITY] > 1)
 					inventory[selectedInventoryN][QUANTITY]--;
 				else
-					inventory[selectedInventoryN][IDOBJECT] = -1;
+					inventory[selectedInventoryN][IDOBJECT] = EMPTY;
 
 			}
 			for (int i = 0; i<=2; i++)
 			{
-				if(inventory[i][IDOBJECT] != -1)
+				if(inventory[i][IDOBJECT] != EMPTY)
 				{                    
 					DrawRectangle(inventorySpace[i].Center.x-object[inventory[i][IDOBJECT]].shape.width/2, inventorySpace[i].Center.y - object[inventory[i][IDOBJECT]].shape.height/2, object[inventory[i][IDOBJECT]].shape.width, object[inventory[i][IDOBJECT]].shape.height, object[inventory[i][IDOBJECT]].color);
 					DrawText(TextFormat("%d", inventory[i][QUANTITY]), inventorySpace[i].Center.x+object[inventory[i][0]].shape.width/2, inventorySpace[i].Center.y + object[inventory[i][0]].shape.height/2, 10, BLACK);
@@ -220,12 +222,9 @@ int main()
 					{
 						for(int i = 0; i<=2; i++)
 						{
-							if(inventory[i][IDOBJECT] == -1)
+							if(inventory[i][IDOBJECT] == EMPTY && whereToStore == EMPTY)
 							{
-								inventory[i][IDOBJECT] = selectedObject.idObject;
-								inventory[i][QUANTITY]++;
-								objTaken = true;
-								break;
+								whereToStore = i;
 							} 
 							else if (inventory[i][IDOBJECT] == selectedObject.idObject && inventory[i][QUANTITY] < 5)
 							{
@@ -233,18 +232,25 @@ int main()
 								objTaken = true;
 								break;
 							}
-
-							printf("%s %d\n", object[(inventory[i][IDOBJECT])].desc, inventory[i][QUANTITY]);
 						}
 						if(objTaken)
 						{
 							spawnedObject = false;
 							objTaken = false;
+							whereToStore = EMPTY;
 						}
 						else
 						{
+							if(whereToStore != EMPTY)
+							{
+								inventory[whereToStore][IDOBJECT] = selectedObject.idObject;
+								inventory[whereToStore][QUANTITY] = 1;
+								whereToStore = EMPTY;
+							}
+							else {
+								printf ("Inventory full :( \n");
+							}
 							spawnedObject = false;
-							printf ("Inventory full :( \n");
 						}
 					}
 				}
